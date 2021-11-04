@@ -1,44 +1,33 @@
-import moment from 'moment';
-import React, { useEffect, useState } from 'react';
-import socketIOClient from "socket.io-client";
-const ENDPOINT = "http://127.0.0.1:4001";
-
-interface ResponseProps {
-  date: string;
-  users?: [{
-    createdAt: string;
-    ip: string;
-    isAdmin: boolean;
-    isBlocked: boolean;
-    isDeleted: boolean;
-    macAddress?: string;
-    name?: string;
-    updatedAt: string;
-    userId: number;
-  }]
-}
+import { useIo } from '@src/hooks/useIo';
+import React, { useCallback, useState } from 'react';
+import Button from './common/buttons/Button';
 
 export default function Child() {
-  const [response, setResponse] = useState<ResponseProps>({} as ResponseProps);
+  const socket = useIo();
 
-  useEffect(() => {
-    const socket = socketIOClient(ENDPOINT);
-    socket.on("FromApi", data => {
-      console.log(data);
-      setResponse(data);
+  const [name, setName] = useState('');
+  const [churchId, setChurchId] = useState(0);
+  const [userId, setUserId] = useState(0);
 
-      socket.on('error', () => {
-        console.log('Disconnected');
-      })
-    });
-  }, []);
+  const handleSubmit = useCallback(() => {
+    const params = { name, churchId, userId };
+    socket.emit('create_schedule', { params });
+  }, [name, churchId, userId])
 
   return (
     <p>
-      Its <time dateTime={response.date}>{moment(response.date).format('DD/MM/YYYY HH:mm:ss')}</time>
-      {response.users?.map(user => (
-        <code key={user.userId}>{user.name}</code>
-      ))}
+      <label>Nome da Agenda:</label>
+      <input type="text" onChange={(e) => setName(e.target.value)} />
+
+      <label>Igreja:</label>
+      <input type="number" onChange={(e) => setChurchId(Number(e.target.value))} />
+
+      <label>Usuário:</label>
+      <input type="number" onChange={(e) => setUserId(Number(e.target.value))} />
+
+      <Button onClick={handleSubmit}>
+        Criar Agenda
+      </Button>
     </p>
   );
 }

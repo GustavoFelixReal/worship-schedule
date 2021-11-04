@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Application from './pages/home/index';
+import Application from './pages/index';
 import { inDev } from './utils/helpers';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
